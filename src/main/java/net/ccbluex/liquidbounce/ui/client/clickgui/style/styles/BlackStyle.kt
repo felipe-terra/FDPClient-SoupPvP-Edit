@@ -38,6 +38,13 @@ import kotlin.math.roundToInt
 
 @SideOnly(Side.CLIENT)
 object BlackStyle : Style() {
+    // Minimalist Dark Color Palette
+    private val bgDark = Color(13, 13, 13)
+    private val bgLight = Color(26, 26, 26)
+    private val bgHover = Color(35, 35, 35)
+    private val accentColor = Color(0, 210, 106)
+    private val textWhite = Color(240, 240, 240)
+    private val textGray = Color(128, 128, 128)
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel) {
         drawBorderedRect(
             panel.x, panel.y - 3, panel.x + panel.width, panel.y + 17, 3, Color(20, 20, 20).rgb, Color(20, 20, 20).rgb

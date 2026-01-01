@@ -56,7 +56,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
     private var lastBlocking = 0L
 
     private val shouldAutoClick
-        get() = mc.thePlayer.capabilities.isCreativeMode || !mc.objectMouseOver.typeOfHit.isBlock
+        get() = mc.currentScreen == null && (mc.thePlayer.capabilities.isCreativeMode || !mc.objectMouseOver.typeOfHit.isBlock)
 
     private var shouldJitter = false
 
@@ -142,10 +142,13 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
     private fun shouldAutoRightClick() = mc.thePlayer.heldItem?.itemUseAction in arrayOf(EnumAction.BLOCK)
 
     private fun handleLeftClick(time: Long, doubleClick: Int) {
+        // Don't click in inventory/GUI
+        if (mc.currentScreen != null) return
         if (target != null && target!!.hurtTime > hurtTime) return
 
         repeat(1 + doubleClick) {
-            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode)
+            // Use clickMouse to simulate real mouse click that counts as CPS
+            mc.clickMouse()
 
             leftLastSwing = time
             leftDelay = generateNewClickTime()

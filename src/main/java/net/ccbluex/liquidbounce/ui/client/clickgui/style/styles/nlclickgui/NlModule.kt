@@ -61,6 +61,9 @@ class NlModule(var NlSub: NlSub, var module: Module, var lef: Boolean) {
 
     var HoveringAnimation: Animation = DecelerateAnimation(225, 1.0, Direction.BACKWARDS)
 
+    // Controls whether settings are expanded or collapsed (starts collapsed)
+    var expanded: Boolean = false
+
 
     init {
         this.posx = if (lef) 0 else 170
@@ -91,6 +94,10 @@ class NlModule(var NlSub: NlSub, var module: Module, var lef: Boolean) {
 
 
     fun calcHeight(): Int {
+        // If collapsed, show only module name row
+        if (!expanded) {
+            return 25
+        }
         var h = 30
         for (s in module.values.stream().filter { obj: Value<*>? -> obj!!.shouldRender() }
             .collect(Collectors.toList())) {
@@ -164,14 +171,17 @@ class NlModule(var NlSub: NlSub, var module: Module, var lef: Boolean) {
         ) Direction.FORWARDS else Direction.BACKWARDS
 
 
-        var cheigt = 42
-        for (downward in downwards.stream().filter { s: Downward<*>? -> s!!.setting.shouldRender() }
-            .collect(Collectors.toList())) {
-            downward.setX(posx)
-            downward.setY(calcY() + cheigt)
-            cheigt += 20
+        // Only draw settings if expanded
+        if (expanded) {
+            var cheigt = 42
+            for (downward in downwards.stream().filter { s: Downward<*>? -> s!!.setting.shouldRender() }
+                .collect(Collectors.toList())) {
+                downward.setX(posx)
+                downward.setY(calcY() + cheigt)
+                cheigt += 20
 
-            downward.draw(mx, my)
+                downward.draw(mx, my)
+            }
         }
         rendertoggle()
 
@@ -235,8 +245,20 @@ class NlModule(var NlSub: NlSub, var module: Module, var lef: Boolean) {
     }
 
     fun click(mx: Int, my: Int, mb: Int) {
-        downwards.stream().filter { e: Downward<*>? -> e!!.setting.shouldRender() }
-            .forEach { e: Downward<*>? -> e!!.mouseClicked(mx, my, mb) }
+        // Only handle settings clicks if expanded
+        if (expanded) {
+            downwards.stream().filter { e: Downward<*>? -> e!!.setting.shouldRender() }
+                .forEach { e: Downward<*>? -> e!!.mouseClicked(mx, my, mb) }
+        }
+
+        // Right-click on module card toggles expand/collapse
+        val cardStartX = (x + 95 + posx).toFloat()
+        val cardStartY = y + posy + scrollY + NeverloseGui.HEADER_HEIGHT + 10
+        if (mb == 1 && module.values.isNotEmpty() && 
+            isHovering(cardStartX, cardStartY.toFloat(), cardWidth, 20f, mx, my)) {
+            expanded = !expanded
+            return
+        }
 
         if (isHovering(
                 toggleXPosition,
