@@ -38,7 +38,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)
     private val jitter by boolean("Jitter", false)
-    private val block by boolean("AutoBlock", false) { left }
+    private val block by boolean("Break Blocks", false) { left }
     private val blockDelay by int("BlockDelay", 50, 0..100) { block }
 
     private val requiresNoInput by boolean("RequiresNoInput", false) { left }
