@@ -8,9 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.SnakeGame;
-import net.ccbluex.liquidbounce.features.module.modules.visual.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
-import net.ccbluex.liquidbounce.features.module.modules.visual.SilentHotbarModule;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.client.ClassUtils;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
@@ -58,7 +56,8 @@ public abstract class MixinGuiInGame extends Gui {
         final HUDModule hud = HUDModule.INSTANCE;
         final SnakeGame snakeGame = SnakeGame.INSTANCE;
 
-        if (snakeGame.getState() || hud.handleEvents() && hud.getCsgoCrosshairValue() || mc.gameSettings.thirdPersonView != 0)
+        if (snakeGame.getState() || hud.handleEvents() && hud.getCsgoCrosshairValue()
+                || mc.gameSettings.thirdPersonView != 0)
             callbackInfoReturnable.setReturnValue(false);
     }
 
@@ -70,10 +69,7 @@ public abstract class MixinGuiInGame extends Gui {
 
     @Redirect(method = "updateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
     private ItemStack hookSilentHotbarHighlightedName(InventoryPlayer instance) {
-        SilentHotbarModule module = SilentHotbarModule.INSTANCE;
-
-        int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepHighlightedName());
-
+        int slot = SilentHotbar.INSTANCE.renderSlot(true);
         return instance.getStackInSlot(slot);
     }
 
@@ -103,7 +99,8 @@ public abstract class MixinGuiInGame extends Gui {
                 float rainbowX = (hud.getRainbowX() == 0f) ? 0f : 1f / hud.getRainbowX();
                 float rainbowY = (hud.getRainbowY() == 0f) ? 0f : 1f / hud.getRainbowY();
 
-                List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(), hud.getMaxHotbarGradientColors());
+                List<float[]> gradientColors = ColorSettingsKt.toColorArray(hud.getBgGradColors(),
+                        hud.getMaxHotbarGradientColors());
 
                 GL11.glPushMatrix();
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -120,8 +117,7 @@ public abstract class MixinGuiInGame extends Gui {
                             gradientY,
                             gradientColors,
                             hud.getGradientHotbarSpeed(),
-                            gradientOffset
-                    );
+                            gradientOffset);
                 }
 
                 if (isRainbow) {
@@ -134,8 +130,7 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen + 91, height,
                         hud.getHbBackgroundColors().color().getRGB(),
                         hud.getRoundedHotbarRadius(),
-                        RenderUtils.RoundedCorners.ALL
-                );
+                        RenderUtils.RoundedCorners.ALL);
 
                 if (isRainbow) {
                     RainbowShader.INSTANCE.stopShader();
@@ -150,8 +145,7 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91 - 1 + slot * 20 + 23, height - 23 - 1 + 24,
                         hud.getHbHighlightColors().color().getRGB(),
                         hud.getRoundedHotbarRadius(),
-                        RenderUtils.RoundedCorners.ALL
-                );
+                        RenderUtils.RoundedCorners.ALL);
 
                 // Border - Background
                 render.drawRoundedBorder(
@@ -159,8 +153,7 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen + 91 + 0.1F, height - 0.5F,
                         hud.getHbBackgroundBorder(),
                         hud.getHbBackgroundBorderColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
-                );
+                        hud.getRoundedHotbarRadius());
 
                 // Border - Highlight
                 render.drawRoundedBorder(
@@ -168,8 +161,7 @@ public abstract class MixinGuiInGame extends Gui {
                         middleScreen - 91 - 1 + slot * 20 + 23.15F, height - 23 - 1 + 23.5F,
                         hud.getHbHighlightBorder(),
                         hud.getHbHighlightBorderColors().color().getRGB(),
-                        hud.getRoundedHotbarRadius()
-                );
+                        hud.getRoundedHotbarRadius());
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glPopMatrix();
@@ -202,22 +194,6 @@ public abstract class MixinGuiInGame extends Gui {
         liquidBounce$injectRender2DEvent(delta);
     }
 
-    @Inject(method = "renderPumpkinOverlay", at = @At("HEAD"), cancellable = true)
-    private void renderPumpkinOverlay(final CallbackInfo callbackInfo) {
-        final AntiBlind antiBlind = AntiBlind.INSTANCE;
-
-        if (antiBlind.handleEvents() && antiBlind.getPumpkinEffect())
-            callbackInfo.cancel();
-    }
-
-    @Inject(method = "renderBossHealth", at = @At("HEAD"), cancellable = true)
-    private void renderBossHealth(CallbackInfo callbackInfo) {
-        final AntiBlind antiBlind = AntiBlind.INSTANCE;
-
-        if (antiBlind.handleEvents() && antiBlind.getBossHealth())
-            callbackInfo.cancel();
-    }
-
     @Unique
     private void liquidBounce$injectRender2DEvent(float delta) {
         if (!ClassUtils.INSTANCE.hasClass("net.labymod.api.LabyModAPI")) {
@@ -225,11 +201,11 @@ public abstract class MixinGuiInGame extends Gui {
         }
     }
 
-    private void renderItem(int i, int x, int y , EntityPlayer player) {
+    private void renderItem(int i, int x, int y, EntityPlayer player) {
         ItemStack itemstack = player.inventory.mainInventory[i];
         if (itemstack != null) {
             mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, x, y);
-            mc.getRenderItem().renderItemOverlays(mc.fontRendererObj, itemstack, x-1, y-1);
+            mc.getRenderItem().renderItemOverlays(mc.fontRendererObj, itemstack, x - 1, y - 1);
         }
     }
 }

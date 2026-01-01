@@ -45,22 +45,24 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class MixinRendererLivingEntity extends MixinRender {
 
     @Shadow
-    protected abstract<T extends EntityLivingBase> float handleRotationFloat(T livingBase, float partialTicks);
+    protected abstract <T extends EntityLivingBase> float handleRotationFloat(T livingBase, float partialTicks);
 
     @Shadow
     private static final Logger logger = LogManager.getLogger();
 
     @Shadow
-    protected abstract<T extends EntityLivingBase> float getSwingProgress(T livingBase, float partialTickTime);
+    protected abstract <T extends EntityLivingBase> float getSwingProgress(T livingBase, float partialTickTime);
 
     @Shadow
-    protected abstract <T extends EntityLivingBase> void renderLivingAt(T entityLivingBaseIn, double x, double y, double z);
+    protected abstract <T extends EntityLivingBase> void renderLivingAt(T entityLivingBaseIn, double x, double y,
+            double z);
 
     @Shadow
     protected abstract <T extends EntityLivingBase> void preRenderCallback(T entitylivingbaseIn, float partialTickTime);
 
     @Shadow
-    protected abstract <T extends EntityLivingBase> void rotateCorpse(T p_rotateCorpse_1_, float p_rotateCorpse_2_, float p_rotateCorpse_3_, float p_rotateCorpse_4_);
+    protected abstract <T extends EntityLivingBase> void rotateCorpse(T p_rotateCorpse_1_, float p_rotateCorpse_2_,
+            float p_rotateCorpse_3_, float p_rotateCorpse_4_);
 
     @Shadow
     protected boolean renderOutlines = false;
@@ -75,10 +77,13 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     protected abstract void unsetScoreTeamColor();
 
     @Shadow
-    protected abstract <T extends EntityLivingBase> void renderLayers(T entitylivingbaseIn, float p_177093_2_, float p_177093_3_, float partialTicks, float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_);
+    protected abstract <T extends EntityLivingBase> void renderLayers(T entitylivingbaseIn, float p_177093_2_,
+            float p_177093_3_, float partialTicks, float p_177093_5_, float p_177093_6_, float p_177093_7_,
+            float p_177093_8_);
 
     @Shadow
-    protected abstract <T extends EntityLivingBase> boolean setDoRenderBrightness(T entityLivingBaseIn, float partialTicks);
+    protected abstract <T extends EntityLivingBase> boolean setDoRenderBrightness(T entityLivingBaseIn,
+            float partialTicks);
 
     @Shadow
     protected abstract float interpolateRotation(float par1, float par2, float par3);
@@ -87,26 +92,28 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     protected ModelBase mainModel;
 
     @Inject(method = "rotateCorpse", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;deathTime:I", shift = At.Shift.AFTER))
-    protected <T extends EntityLivingBase> void rotateCorpse(T p_rotateCorpse_1_, float p_rotateCorpse_2_, float p_rotateCorpse_3_, float p_rotateCorpse_4_, CallbackInfo ci) {
+    protected <T extends EntityLivingBase> void rotateCorpse(T p_rotateCorpse_1_, float p_rotateCorpse_2_,
+            float p_rotateCorpse_3_, float p_rotateCorpse_4_, CallbackInfo ci) {
         final CustomModel customModel = CustomModel.INSTANCE;
         String s = EnumChatFormatting.getTextWithoutFormattingCodes(p_rotateCorpse_1_.getName());
-        if (s != null && (customModel.getRotatePlayer() && p_rotateCorpse_1_.equals(mc.thePlayer) && customModel.handleEvents()) && (!(p_rotateCorpse_1_ instanceof EntityPlayer) || ((EntityPlayer)p_rotateCorpse_1_).isWearing(EnumPlayerModelParts.CAPE))) {
+        if (s != null
+                && (customModel.getRotatePlayer() && p_rotateCorpse_1_.equals(mc.thePlayer)
+                        && customModel.handleEvents())
+                && (!(p_rotateCorpse_1_ instanceof EntityPlayer)
+                        || ((EntityPlayer) p_rotateCorpse_1_).isWearing(EnumPlayerModelParts.CAPE))) {
             translate(0.0F, p_rotateCorpse_1_.height + 0.1F, 0.0F);
             rotate(180.0F, 0.0F, 0.0F, 1.0F);
         }
     }
 
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("HEAD"), cancellable = true)
-    private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
+    private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw,
+            float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
         final ESP esp = ESP.INSTANCE;
-        boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
-        final NoRender noRender = NoRender.INSTANCE;
-
-        if (noRender.handleEvents() && noRender.shouldStopRender(entity)) {
-            callbackInfo.cancel();
-            return;
-        }
+        boolean shouldRender = chams.handleEvents() && chams.getTargets()
+                && EntityUtils.INSTANCE.isSelected(entity, false)
+                || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
 
         if (shouldRender) {
             glEnable(GL_POLYGON_OFFSET_FILL);
@@ -115,22 +122,23 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     }
 
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At("RETURN"))
-    private <T extends EntityLivingBase> void injectChamsPost(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
+    private <T extends EntityLivingBase> void injectChamsPost(T entity, double x, double y, double z, float entityYaw,
+            float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = Chams.INSTANCE;
         final ESP esp = ESP.INSTANCE;
-        boolean shouldRender = chams.handleEvents() && chams.getTargets() && EntityUtils.INSTANCE.isSelected(entity, false) || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
-        final NoRender noRender = NoRender.INSTANCE;
+        boolean shouldRender = chams.handleEvents() && chams.getTargets()
+                && EntityUtils.INSTANCE.isSelected(entity, false)
+                || esp.handleEvents() && esp.shouldRender(entity) && esp.getMode().equals("Gaussian");
 
         if (shouldRender) {
-            if (!(noRender.getState() && noRender.shouldStopRender(entity))) {
             glPolygonOffset(1f, 1000000F);
             glDisable(GL_POLYGON_OFFSET_FILL);
-            }
         }
     }
 
     @Inject(method = "canRenderName(Lnet/minecraft/entity/EntityLivingBase;)Z", at = @At("HEAD"), cancellable = true)
-    private <T extends EntityLivingBase> void canRenderName(T entity, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+    private <T extends EntityLivingBase> void canRenderName(T entity,
+            CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         if (NameTags.INSTANCE.shouldRenderNameTags(entity) || ESP2D.INSTANCE.shouldCancelNameTag(entity)) {
             callbackInfoReturnable.setReturnValue(false);
         }
@@ -145,46 +153,43 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     private void injectFreeLookPitchPostMovePrevention(CallbackInfo ci) {
         FreeLook.INSTANCE.useModifiedRotation();
     }
+
     /**
      * @author Randomguy && wxdbie && Zywl
      * @reason FakeBody Rotations
      */
     @Overwrite
-    public<T extends EntityLivingBase> void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
-    {
+    public <T extends EntityLivingBase> void doRender(T entity, double x, double y, double z, float entityYaw,
+            float partialTicks) {
         pushMatrix();
         disableCull();
         this.mainModel.swingProgress = this.getSwingProgress(entity, partialTicks);
         this.mainModel.isRiding = entity.isRiding();
         this.mainModel.isChild = entity.isChild();
 
-        try
-        {
+        try {
             float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
             float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
             float f2 = f1 - f;
 
-            if (entity.isRiding() && entity.ridingEntity instanceof EntityLivingBase)
-            {
-                EntityLivingBase entitylivingbase = (EntityLivingBase)entity.ridingEntity;
-                f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
+            if (entity.isRiding() && entity.ridingEntity instanceof EntityLivingBase) {
+                EntityLivingBase entitylivingbase = (EntityLivingBase) entity.ridingEntity;
+                f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset,
+                        partialTicks);
                 f2 = f1 - f;
                 float f3 = MathHelper.wrapAngleTo180_float(f2);
 
-                if (f3 < -85.0F)
-                {
+                if (f3 < -85.0F) {
                     f3 = -85.0F;
                 }
 
-                if (f3 >= 85.0F)
-                {
+                if (f3 >= 85.0F) {
                     f3 = 85.0F;
                 }
 
                 f = f1 - f3;
 
-                if (f3 * f3 > 2500.0F)
-                {
+                if (f3 * f3 > 2500.0F) {
                     f += f3 * 0.2F;
                 }
             }
@@ -197,16 +202,15 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             GlStateManager.scale(-1.0F, -1.0F, 1.0F);
             this.preRenderCallback(entity, partialTicks);
             GlStateManager.translate(0.0F, -1.5078125F, 0.0F);
-            float f5 = entity.prevLimbSwingAmount + (entity.limbSwingAmount - entity.prevLimbSwingAmount) * partialTicks;
+            float f5 = entity.prevLimbSwingAmount
+                    + (entity.limbSwingAmount - entity.prevLimbSwingAmount) * partialTicks;
             float f6 = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
 
-            if (entity.isChild())
-            {
+            if (entity.isChild()) {
                 f6 *= 3.0F;
             }
 
-            if (f5 > 1.0F)
-            {
+            if (f5 > 1.0F) {
                 f5 = 1.0F;
             }
 
@@ -214,49 +218,55 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
             this.mainModel.setLivingAnimations(entity, f6, f5, partialTicks);
             this.mainModel.setRotationAngles(f6, f5, f8, f2, f7, 0.0625F, entity);
 
-            if (this.renderOutlines)
-            {
+            if (this.renderOutlines) {
                 boolean flag1 = this.setScoreTeamColor(entity);
                 this.renderModel(entity, f6, f5, f8, f2, f7, 0.0625F);
 
-                if (flag1)
-                {
+                if (flag1) {
                     this.unsetScoreTeamColor();
                 }
-            }
-            else
-            {
+            } else {
 
                 boolean flag = this.setDoRenderBrightness(entity, partialTicks);
                 this.renderModel(entity, f6, f5, f8, f2, f7, 0.0625F);
 
-                if (flag)
-                {
+                if (flag) {
                     this.unsetBrightness();
                 }
 
                 GlStateManager.depthMask(true);
 
-                if (!(entity instanceof EntityPlayer) || !((EntityPlayer)entity).isSpectator())
-                {
+                if (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).isSpectator()) {
                     this.renderLayers(entity, f6, f5, partialTicks, f8, f2, f7, 0.0625F);
                 }
             }
 
-
             final Rotations rotations = Rotations.INSTANCE;
-            float renderpitch = (mc.gameSettings.thirdPersonView != 0 && rotations.getState() && rotations.getGhost() && entity == mc.thePlayer) ? (entity.prevRotationPitch + (((RotationUtils.INSTANCE.getServerRotation().getPitch() != 0.0f) ? RotationUtils.INSTANCE.getServerRotation().getPitch() : entity.rotationPitch) - entity.prevRotationPitch)) : (entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks);
-            float renderyaw = (mc.gameSettings.thirdPersonView != 0 && rotations.getState() && rotations.getGhost() && entity == mc.thePlayer) ? (entity.prevRotationYaw + (((RotationUtils.INSTANCE.getServerRotation().getYaw() != 0.0f) ? RotationUtils.INSTANCE.getServerRotation().getYaw() : entity.rotationYaw) - entity.prevRotationYaw)) : (entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks);
-            if(rotations.getState() && rotations.getGhost() && entity.equals(mc.thePlayer) && Rotations.INSTANCE.shouldRotate()) {
+            float renderpitch = (mc.gameSettings.thirdPersonView != 0 && rotations.getState() && rotations.getGhost()
+                    && entity == mc.thePlayer)
+                            ? (entity.prevRotationPitch
+                                    + (((RotationUtils.INSTANCE.getServerRotation().getPitch() != 0.0f)
+                                            ? RotationUtils.INSTANCE.getServerRotation().getPitch()
+                                            : entity.rotationPitch) - entity.prevRotationPitch))
+                            : (entity.prevRotationPitch
+                                    + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks);
+            float renderyaw = (mc.gameSettings.thirdPersonView != 0 && rotations.getState() && rotations.getGhost()
+                    && entity == mc.thePlayer)
+                            ? (entity.prevRotationYaw + (((RotationUtils.INSTANCE.getServerRotation().getYaw() != 0.0f)
+                                    ? RotationUtils.INSTANCE.getServerRotation().getYaw()
+                                    : entity.rotationYaw) - entity.prevRotationYaw))
+                            : (entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks);
+            if (rotations.getState() && rotations.getGhost() && entity.equals(mc.thePlayer)
+                    && Rotations.INSTANCE.shouldRotate()) {
                 glPushMatrix();
                 glPushAttrib(1048575);
                 glDisable(2929);
                 glDisable(3553);
                 glDisable(3553);
                 glEnable(3042);
-                glBlendFunc(770,771);
+                glBlendFunc(770, 771);
                 glDisable(2896);
-                glPolygonMode(1032,6914);
+                glPolygonMode(1032, 6914);
                 RenderUtils.INSTANCE.glColor(rotations.getColor());
                 glRotatef(renderyaw - f, 0, 0.001f, 0);
                 this.mainModel.render(mc.thePlayer, f6, f5, renderpitch, f2, renderpitch, 0.0625F);
@@ -264,15 +274,13 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                 glDisable(3042);
                 glEnable(3553);
                 glEnable(2929);
-                glColor3d(1,1,1);
+                glColor3d(1, 1, 1);
                 glPopAttrib();
                 glPopMatrix();
             }
 
             GlStateManager.disableRescaleNormal();
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             logger.error("Couldn't render entity", exception);
         }
 
@@ -282,26 +290,28 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         enableCull();
         popMatrix();
 
-        if (!this.renderOutlines)
-        {
+        if (!this.renderOutlines) {
             super.doRender(entity, x, y, z, entityYaw, partialTicks);
         }
     }
 
     /**
      * @author Zywl
-     * @reason Chams & truesight options
+     * @reason Chams options - simplified without TrueSight and NoRender
      */
     @Overwrite
-    protected <T extends EntityLivingBase> void renderModel(T entitylivingbaseIn, float p_77036_2_, float p_77036_3_, float p_77036_4_, float p_77036_5_, float p_77036_6_, float scaleFactor) {
+    protected <T extends EntityLivingBase> void renderModel(T entitylivingbaseIn, float p_77036_2_, float p_77036_3_,
+            float p_77036_4_, float p_77036_5_, float p_77036_6_, float scaleFactor) {
         boolean visible = !entitylivingbaseIn.isInvisible();
-        final TrueSight trueSight = TrueSight.INSTANCE;
         final Chams chams = Chams.INSTANCE;
-        boolean chamsFlag = (chams.handleEvents() && chams.getTargets() && !chams.getLegacyMode() && ((chams.getLocalPlayerValue() && entitylivingbaseIn == mc.thePlayer) || EntityUtils.INSTANCE.isSelected(entitylivingbaseIn, false)));
-        boolean semiVisible = !visible && (!entitylivingbaseIn.isInvisibleToPlayer(mc.thePlayer) || (trueSight.handleEvents() && trueSight.getEntities()));
-        if(visible || semiVisible) {
+        boolean chamsFlag = (chams.handleEvents() && chams.getTargets() && !chams.getLegacyMode()
+                && ((chams.getLocalPlayerValue() && entitylivingbaseIn == mc.thePlayer)
+                        || EntityUtils.INSTANCE.isSelected(entitylivingbaseIn, false)));
+        boolean semiVisible = !visible && !entitylivingbaseIn.isInvisibleToPlayer(mc.thePlayer);
+        if (visible || semiVisible) {
             final ESP esp = ESP.INSTANCE;
-            boolean shouldRenderGaussianESP = esp.handleEvents() && esp.shouldRender(entitylivingbaseIn) && esp.getMode().equals("Gaussian");
+            boolean shouldRenderGaussianESP = esp.handleEvents() && esp.shouldRender(entitylivingbaseIn)
+                    && esp.getMode().equals("Gaussian");
             if (!shouldRenderGaussianESP) {
                 if (!bindEntityTexture(entitylivingbaseIn)) {
                     return;
@@ -340,7 +350,8 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         RenderUtils.INSTANCE.glColor(esp.getColor(entitylivingbaseIn));
                         glLineWidth(esp.getWireframeWidth());
-                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                                scaleFactor);
                         glPopAttrib();
                         glPopMatrix();
                         break;
@@ -351,16 +362,20 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                         final Color color = esp.getColor(entitylivingbaseIn);
                         setColor(color);
                         renderOne(esp.getOutlineWidth());
-                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                                scaleFactor);
                         setColor(color);
                         renderTwo();
-                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                                scaleFactor);
                         setColor(color);
                         renderThree();
-                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                                scaleFactor);
                         setColor(color);
                         renderFour(color);
-                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                        mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                                scaleFactor);
                         setColor(color);
                         renderFive();
                         setColor(Color.WHITE);
@@ -391,7 +406,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                     break;
             }
 
-            chamsColor = inAlpha(chamsColor,  255);
+            chamsColor = inAlpha(chamsColor, 255);
             chamsBehindColor = inAlpha(chamsBehindColor, 255);
 
             if (chamsFlag) {
@@ -419,24 +434,28 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                     glDisable(texture2D);
                     glDisable(lighting);
                     glBlendFunc(srcAlpha, srcAlphaPlus1);
-                    glColor4f(chamsColor2.getRed() / 255.0F, chamsColor2.getGreen() / 255.0F, chamsColor2.getBlue() / 255.0F, chamsColor2.getAlpha() / 255.0F);
+                    glColor4f(chamsColor2.getRed() / 255.0F, chamsColor2.getGreen() / 255.0F,
+                            chamsColor2.getBlue() / 255.0F, chamsColor2.getAlpha() / 255.0F);
                 }
 
                 glDisable(depth);
                 glDepthMask(false);
             }
 
-            this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+            this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                    scaleFactor);
 
             if (chamsFlag) {
                 glEnable(depth);
                 glDepthMask(true);
 
                 if (!textured) {
-                    glColor4f(chamsColor.getRed() / 255.0F, chamsColor.getGreen() / 255.0F, chamsColor.getBlue() / 255.0F, chamsColor.getAlpha() / 255.0F);
+                    glColor4f(chamsColor.getRed() / 255.0F, chamsColor.getGreen() / 255.0F,
+                            chamsColor.getBlue() / 255.0F, chamsColor.getAlpha() / 255.0F);
                 }
 
-                this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, scaleFactor);
+                this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_,
+                        scaleFactor);
 
                 if (!textured) {
                     glEnable(texture2D);

@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
-import net.ccbluex.liquidbounce.features.module.modules.visual.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -46,12 +45,13 @@ public class MixinLayerHeldItem {
      * @author CCBlueX
      */
     @Overwrite
-    public void doRenderLayer(EntityLivingBase entity, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
-        SilentHotbarModule module = SilentHotbarModule.INSTANCE;
+    public void doRenderLayer(EntityLivingBase entity, float p_177141_2_, float p_177141_3_, float partialTicks,
+            float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale) {
+        int slot = SilentHotbar.INSTANCE.renderSlot(true);
 
-        int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
-
-        ItemStack itemstack = entity instanceof EntityPlayerSP ? ((EntityPlayerSP) entity).inventory.getStackInSlot(slot) : entity.getHeldItem();
+        ItemStack itemstack = entity instanceof EntityPlayerSP
+                ? ((EntityPlayerSP) entity).inventory.getStackInSlot(slot)
+                : entity.getHeldItem();
 
         if (itemstack != null) {
             pushMatrix();
@@ -66,7 +66,9 @@ public class MixinLayerHeldItem {
             final UUID uuid = entity.getUniqueID();
             final EntityPlayer entityplayer = mc.theWorld.getPlayerEntityByUUID(uuid);
 
-            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking()))) {
+            if (entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP
+                    && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking())
+                            || NoSlow.INSTANCE.isUNCPBlocking()))) {
                 if (entity.isSneaking()) {
                     ((ModelBiped) livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.58F, 0.3F, -0.2F);

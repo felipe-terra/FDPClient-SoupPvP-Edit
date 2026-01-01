@@ -8,7 +8,6 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.visual.CustomModel;
-import net.ccbluex.liquidbounce.features.module.modules.visual.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.io.APIConnectorUtils;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -30,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(RenderPlayer.class)
 public abstract class MixinRenderPlayer {
 
-
     @Shadow
     public abstract ModelPlayer getMainModel();
 
@@ -45,11 +43,10 @@ public abstract class MixinRenderPlayer {
             modelplayer.bipedHead.showModel = true;
             modelplayer.bipedHeadwear.showModel = true;
         } else {
-            SilentHotbarModule module = SilentHotbarModule.INSTANCE;
+            int slot = SilentHotbar.INSTANCE.renderSlot(true);
 
-            int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInThirdPerson());
-
-            ItemStack itemstack = entity instanceof EntityPlayerSP ? entity.inventory.getStackInSlot(slot) : entity.getHeldItem();
+            ItemStack itemstack = entity instanceof EntityPlayerSP ? entity.inventory.getStackInSlot(slot)
+                    : entity.getHeldItem();
 
             modelplayer.setInvisible(true);
             modelplayer.bipedHeadwear.showModel = entity.isWearing(EnumPlayerModelParts.HAT);
@@ -65,9 +62,11 @@ public abstract class MixinRenderPlayer {
                 modelplayer.heldItemRight = 0;
             } else {
                 modelplayer.heldItemRight = 1;
-                boolean isForceBlocking = entity instanceof EntityPlayerSP && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking()) || NoSlow.INSTANCE.isUNCPBlocking());
+                boolean isForceBlocking = entity instanceof EntityPlayerSP
+                        && ((itemstack.getItem() instanceof ItemSword && KillAura.INSTANCE.getRenderBlocking())
+                                || NoSlow.INSTANCE.isUNCPBlocking());
                 if (entity.getItemInUseCount() > 0 || isForceBlocking) {
-                    EnumAction enumaction = isForceBlocking? EnumAction.BLOCK : itemstack.getItemUseAction();
+                    EnumAction enumaction = isForceBlocking ? EnumAction.BLOCK : itemstack.getItemUseAction();
                     if (enumaction == EnumAction.BLOCK) {
                         modelplayer.heldItemRight = 3;
                     } else if (enumaction == EnumAction.BOW) {
@@ -78,7 +77,7 @@ public abstract class MixinRenderPlayer {
         }
     }
 
-    @Inject(method = {"getEntityTexture"}, at = {@At("HEAD")}, cancellable = true)
+    @Inject(method = { "getEntityTexture" }, at = { @At("HEAD") }, cancellable = true)
     public void getEntityTexture(AbstractClientPlayer entity, CallbackInfoReturnable<ResourceLocation> ci) {
         final CustomModel customModel = CustomModel.INSTANCE;
         final ResourceLocation rabbit = APIConnectorUtils.INSTANCE.callImage("rabbit", "models");

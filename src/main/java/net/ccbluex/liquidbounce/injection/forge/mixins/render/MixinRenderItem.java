@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.ccbluex.liquidbounce.features.module.modules.visual.Glint;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.model.IBakedModel;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,15 +18,9 @@ public abstract class MixinRenderItem {
     @Shadow
     protected abstract void renderModel(IBakedModel model, int color);
 
-    @Redirect(
-            method = "renderEffect",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/entity/RenderItem;renderModel(Lnet/minecraft/client/resources/model/IBakedModel;I)V"
-            )
-    )
+    @Redirect(method = "renderEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/RenderItem;renderModel(Lnet/minecraft/client/resources/model/IBakedModel;I)V"))
     private void renderModelRedirect(RenderItem renderItem, IBakedModel model, int originalColor) {
-        int colorToUse = Glint.INSTANCE.getState() ? Glint.INSTANCE.getGlintColor().getRGB() : -8372020;
-        this.renderModel(model, colorToUse);
+        // Use default glint color
+        this.renderModel(model, -8372020);
     }
 }

@@ -74,7 +74,9 @@ public abstract class MixinEntityRenderer {
     @Shadow
     private boolean lightmapUpdateNeeded;
 
-    protected MixinEntityRenderer(int[] lightmapColors, DynamicTexture lightmapTexture, float torchFlickerX, float bossColorModifier, float bossColorModifierPrev, Minecraft mc, float thirdPersonDistanceTemp, float thirdPersonDistance) {
+    protected MixinEntityRenderer(int[] lightmapColors, DynamicTexture lightmapTexture, float torchFlickerX,
+            float bossColorModifier, float bossColorModifierPrev, Minecraft mc, float thirdPersonDistanceTemp,
+            float thirdPersonDistance) {
         this.lightmapColors = lightmapColors;
         this.lightmapTexture = lightmapTexture;
         this.torchFlickerX = torchFlickerX;
@@ -88,8 +90,9 @@ public abstract class MixinEntityRenderer {
     @Inject(method = "renderWorldPass", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void renderWorldPass(int pass, float partialTicks, long finishTimeNano, CallbackInfo callbackInfo) {
         /*
-          This is done so it supports Opti-Fine while also supporting any mod that cancels the ForgeHooksClient.renderFirstPersonHand event.
-          For example, OrangeMarshall's 1.7 Animations mod.
+         * This is done so it supports Opti-Fine while also supporting any mod that
+         * cancels the ForgeHooksClient.renderFirstPersonHand event.
+         * For example, OrangeMarshall's 1.7 Animations mod.
          */
         if (ClientUtils.INSTANCE.getProfilerName().equals("hand")) {
             FreeLook.INSTANCE.runWithoutSavingRotations(() -> {
@@ -101,27 +104,17 @@ public abstract class MixinEntityRenderer {
         }
     }
 
-    @Inject(method = "hurtCameraEffect", at = @At("HEAD"), cancellable = true)
-    private void injectHurtCameraEffect(CallbackInfo callbackInfo) {
-        if (HurtCam.INSTANCE.handleEvents()) {
-            callbackInfo.cancel();
-        }
-    }
-
     @Unique
-    private float nightVisionBrightness(EntityLivingBase p_getNightVisionBrightness_1_, float p_getNightVisionBrightness_2_) {
+    private float nightVisionBrightness(EntityLivingBase p_getNightVisionBrightness_1_,
+            float p_getNightVisionBrightness_2_) {
         int i = p_getNightVisionBrightness_1_.getActivePotionEffect(Potion.nightVision).getDuration();
-        return i > 200 ? 1.0F : 0.7F + MathHelper.sin(((float) i - p_getNightVisionBrightness_2_) * 3.1415927F * 0.2F) * 0.3F;
-    }
-
-    @ModifyConstant(method = "orientCamera", constant = @Constant(intValue = 8))
-    private int injectCameraClip(int eight) {
-        final CameraView cameraView = CameraView.INSTANCE;
-        return cameraView.getClip() ? 0 : eight;
+        return i > 200 ? 1.0F
+                : 0.7F + MathHelper.sin(((float) i - p_getNightVisionBrightness_2_) * 3.1415927F * 0.2F) * 0.3F;
     }
 
     @Inject(at = @At("HEAD"), method = "updateCameraAndRender")
-    private void injectCameraModifications(float p_updateCameraAndRender_1_, long p_updateCameraAndRender_2_, CallbackInfo ci) {
+    private void injectCameraModifications(float p_updateCameraAndRender_1_, long p_updateCameraAndRender_2_,
+            CallbackInfo ci) {
         FreeCam.INSTANCE.useModifiedPosition();
     }
 
@@ -131,7 +124,8 @@ public abstract class MixinEntityRenderer {
     }
 
     @Inject(at = @At("TAIL"), method = "updateCameraAndRender")
-    private void injectCameraRestorations(float p_updateCameraAndRender_1_, long p_updateCameraAndRender_2_, CallbackInfo ci) {
+    private void injectCameraRestorations(float p_updateCameraAndRender_1_, long p_updateCameraAndRender_2_,
+            CallbackInfo ci) {
         FreeLook.INSTANCE.restoreOriginalRotation();
         FreeCam.INSTANCE.restoreOriginalPosition();
     }
@@ -151,9 +145,13 @@ public abstract class MixinEntityRenderer {
             double d0 = reach.handleEvents() ? reach.getMaxRange() : mc.playerController.getBlockReachDistance();
             Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
             Rotation rotation = new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-            Vec3 vec31 = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
+            Vec3 vec31 = RotationUtils.INSTANCE.getVectorForRotation(
+                    RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride()
+                            ? RotationUtils.INSTANCE.getCurrentRotation()
+                            : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
-            Vec3 vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_, vec31.zCoord * p_rayTrace_1_);
+            Vec3 vec32 = vec3.addVector(vec31.xCoord * p_rayTrace_1_, vec31.yCoord * p_rayTrace_1_,
+                    vec31.zCoord * p_rayTrace_1_);
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
             double d1 = d0;
             boolean flag = false;
@@ -170,15 +168,19 @@ public abstract class MixinEntityRenderer {
 
             if (reach.handleEvents()) {
                 double p_rayTrace_1_2 = reach.getBuildReach();
-                Vec3 vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2, vec31.zCoord * p_rayTrace_1_2);
-                final MovingObjectPosition movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false, false, true);
+                Vec3 vec322 = vec3.addVector(vec31.xCoord * p_rayTrace_1_2, vec31.yCoord * p_rayTrace_1_2,
+                        vec31.zCoord * p_rayTrace_1_2);
+                final MovingObjectPosition movingObjectPosition = entity.worldObj.rayTraceBlocks(vec3, vec322, false,
+                        false, true);
 
-                if (movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
+                if (movingObjectPosition != null)
+                    d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
 
             pointedEntity = null;
             Vec3 vec33 = null;
-            List<Entity> list = mc.theWorld.getEntities(Entity.class, Predicates.and(EntitySelectors.NOT_SPECTATING, p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
+            List<Entity> list = mc.theWorld.getEntities(Entity.class, Predicates.and(EntitySelectors.NOT_SPECTATING,
+                    p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() && p_apply_1_ != entity));
             double d2 = d1;
 
             for (Entity entity1 : list) {
@@ -223,9 +225,11 @@ public abstract class MixinEntityRenderer {
                 }
             }
 
-            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (reach.handleEvents() ? reach.getCombatReach() : 3)) {
+            if (pointedEntity != null && flag
+                    && vec3.distanceTo(vec33) > (reach.handleEvents() ? reach.getCombatReach() : 3)) {
                 pointedEntity = null;
-                mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
+                mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS,
+                        Objects.requireNonNull(vec33), null, new BlockPos(vec33));
             }
 
             if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
@@ -243,11 +247,10 @@ public abstract class MixinEntityRenderer {
 
     /**
      * @author opZywl
-     * @reason Update Light Map
+     * @reason Update Light Map - simplified without Ambience module
      */
     @Overwrite
     private void updateLightmap(float f2) {
-        final Ambience ambience = Ambience.INSTANCE;
         if (this.lightmapUpdateNeeded) {
             this.mc.mcProfiler.startSection("lightTex");
             World world = this.mc.theWorld;
@@ -273,7 +276,8 @@ public abstract class MixinEntityRenderer {
                     f14 = f14 * 0.96f + 0.03f;
                     f15 = f15 * 0.96f + 0.03f;
                     if (this.bossColorModifier > 0.0f) {
-                        float f16 = this.bossColorModifierPrev + (this.bossColorModifier - this.bossColorModifierPrev) * f2;
+                        float f16 = this.bossColorModifierPrev
+                                + (this.bossColorModifier - this.bossColorModifierPrev) * f2;
                         f13 = f13 * (1.0f - f16) + f13 * 0.7f * f16;
                         f14 = f14 * (1.0f - f16) + f14 * 0.6f * f16;
                         f15 = f15 * (1.0f - f16) + f15 * 0.6f * f16;
@@ -339,53 +343,12 @@ public abstract class MixinEntityRenderer {
                     int n2 = (int) (f13 * 255.0f);
                     int n3 = (int) (f14 * 255.0f);
                     int n4 = (int) (f15 * 255.0f);
-                    this.lightmapColors[i2] = ambience.getState() && ambience.getWorldColor()
-                            ? new Color(ambience.getColor().getRGB()).getRGB()
-                            : 0xFF000000 | n2 << 16 | n3 << 8 | n4;
+                    this.lightmapColors[i2] = 0xFF000000 | n2 << 16 | n3 << 8 | n4;
                 }
                 this.lightmapTexture.updateDynamicTexture();
                 this.lightmapUpdateNeeded = false;
                 this.mc.mcProfiler.endSection();
             }
         }
-    }
-
-    /**
-     * Properly implement the confusion option from AntiBlind module
-     */
-    @Redirect(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
-    private boolean injectAntiBlindA(EntityPlayerSP instance, Potion potion) {
-        AntiBlind module = AntiBlind.INSTANCE;
-
-        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
-    }
-
-    @Redirect(method = {"setupFog", "updateFogColor"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;isPotionActive(Lnet/minecraft/potion/Potion;)Z"))
-    private boolean injectAntiBlindB(EntityLivingBase instance, Potion potion) {
-        if (instance != mc.thePlayer) {
-            return instance.isPotionActive(potion);
-        }
-
-        AntiBlind module = AntiBlind.INSTANCE;
-
-        return (!module.handleEvents() || !module.getConfusionEffect()) && instance.isPotionActive(potion);
-    }
-
-    /**
-     * Properly implement the ThirdPerson in fov
-     */
-    @Redirect(
-            method = "setupCameraTransform",
-            at = @At(value = "INVOKE", target = "Lorg/lwjgl/util/glu/Project;gluPerspective(FFFF)V", remap = false)
-    )
-    private void injectThirdPersonLowerFov(float fov, float aspect, float zNear, float zFar) {
-        try {
-            if (mc != null && mc.gameSettings.thirdPersonView != 0
-                    && CameraView.INSTANCE.shouldLowerThirdPersonFov()) {
-                fov = CameraView.INSTANCE.thirdPersonFovValue();
-            }
-        } catch (Throwable ignored) {
-        }
-        Project.gluPerspective(fov, aspect, zNear, zFar);
     }
 }

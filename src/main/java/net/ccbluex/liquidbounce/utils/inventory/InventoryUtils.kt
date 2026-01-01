@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.other.NoSlotSet
-import net.ccbluex.liquidbounce.features.module.modules.visual.SilentHotbarModule
 import net.ccbluex.liquidbounce.features.module.modules.other.ChestAura
 import net.ccbluex.liquidbounce.utils.client.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.client.PacketUtils.sendPacket
@@ -227,9 +226,7 @@ object InventoryUtils : MinecraftInstance, Listenable {
     }
 
     val onRender3D = handler<Render3DEvent> {
-        val module = SilentHotbarModule
-
-        val slotToUse = SilentHotbar.renderSlot(module.handleEvents() && module.keepHotbarSlot).toFloat()
+        val slotToUse = SilentHotbar.renderSlot(true).toFloat()
 
         lerpedSlot = (lerpedSlot..slotToUse).lerpWith(RenderUtils.deltaTimeNormalized())
     }

@@ -9,10 +9,6 @@ import com.jhlabs.image.GaussianFilter
 import net.ccbluex.liquidbounce.FDPClient.CLIENT_NAME
 import net.ccbluex.liquidbounce.config.ColorValue
 import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.DOUBLE_PI
-import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.colorPrimary
-import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.colorSecondary
-import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.start
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.block.center
@@ -66,6 +62,12 @@ object RenderUtils : MinecraftInstance {
     const val CLIENT_COLOR = -16748545
     // ARGB 0x7f006fff
     const val CLIENT_COLOR_HALF_ALPHA = 2130735103
+
+    // Constants previously from CombatVisuals module
+    const val DOUBLE_PI = Math.PI * 2
+    private val colorPrimary = java.awt.Color(255, 0, 0)
+    private val colorSecondary = java.awt.Color(0, 0, 255)
+    private var start = 0.0
 
     private val glowCircle = ResourceLocation("${CLIENT_NAME.lowercase()}/texture/targetesp/glow_circle.png")
 

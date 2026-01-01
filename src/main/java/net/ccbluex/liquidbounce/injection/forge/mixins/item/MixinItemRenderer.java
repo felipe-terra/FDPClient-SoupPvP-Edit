@@ -9,9 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animation;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.visual.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Chams;
-import net.ccbluex.liquidbounce.features.module.modules.visual.SilentHotbarModule;
 import net.ccbluex.liquidbounce.utils.inventory.SilentHotbar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -68,7 +66,8 @@ public abstract class MixinItemRenderer {
     protected abstract void rotateWithPlayerRotations(EntityPlayerSP entityplayerspIn, float partialTicks);
 
     @Shadow
-    protected abstract void renderItemMap(AbstractClientPlayer clientPlayer, float pitch, float equipmentProgress, float swingProgress);
+    protected abstract void renderItemMap(AbstractClientPlayer clientPlayer, float pitch, float equipmentProgress,
+            float swingProgress);
 
     @Shadow
     protected abstract void transformFirstPersonItem(float equipProgress, float swingProgress);
@@ -83,7 +82,8 @@ public abstract class MixinItemRenderer {
     protected abstract void doItemUsedTransformations(float swingProgress);
 
     @Shadow
-    public abstract void renderItem(EntityLivingBase entityIn, ItemStack heldStack, ItemCameraTransforms.TransformType transform);
+    public abstract void renderItem(EntityLivingBase entityIn, ItemStack heldStack,
+            ItemCameraTransforms.TransformType transform);
 
     /**
      * @author Zywl
@@ -98,8 +98,10 @@ public abstract class MixinItemRenderer {
         float f = 1f - (prevEquippedProgress + (equippedProgress - prevEquippedProgress) * partialTicks);
         EntityPlayerSP abstractclientplayer = mc.thePlayer;
         float f1 = abstractclientplayer.getSwingProgress(partialTicks);
-        float f2 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
-        float f3 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
+        float f2 = abstractclientplayer.prevRotationPitch
+                + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
+        float f3 = abstractclientplayer.prevRotationYaw
+                + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
         rotateArroundXAndY(f2, f3);
         setLightMapFromPlayer(abstractclientplayer);
         rotateWithPlayerRotations(abstractclientplayer, partialTicks);
@@ -121,8 +123,10 @@ public abstract class MixinItemRenderer {
         }
 
         if (itemToRender != null) {
-            boolean isForceBlocking = (itemToRender.getItem() instanceof ItemSword && !killAura.getAutoBlock().equals("Off") &&
-                    (killAura.getRenderBlocking() || killAura.getTarget() != null && (killAura.getBlinkAutoBlock() || killAura.getForceBlockRender()))
+            boolean isForceBlocking = (itemToRender.getItem() instanceof ItemSword
+                    && !killAura.getAutoBlock().equals("Off") &&
+                    (killAura.getRenderBlocking() || killAura.getTarget() != null
+                            && (killAura.getBlinkAutoBlock() || killAura.getForceBlockRender()))
                     || noSlow.isUNCPBlocking());
 
             if (itemToRender.getItem() instanceof ItemMap) {
@@ -204,12 +208,12 @@ public abstract class MixinItemRenderer {
         translate(5.6F, 0.0F, 0.0F);
         Render<AbstractClientPlayer> render = renderManager.getEntityRenderObject(this.mc.thePlayer);
         disableCull();
-        RenderPlayer renderplayer = (RenderPlayer)render;
+        RenderPlayer renderplayer = (RenderPlayer) render;
         if (chams.shouldRenderHand()) {
             chams.preHandRender();
         } else {
             this.mc.getTextureManager().bindTexture(clientPlayer.getLocationSkin());
-            glColor4f(1f, 1f, 1f ,1f);
+            glColor4f(1f, 1f, 1f, 1f);
         }
         renderplayer.renderRightArm(this.mc.thePlayer);
         if (chams.shouldRenderHand()) {
@@ -218,22 +222,9 @@ public abstract class MixinItemRenderer {
         enableCull();
     }
 
-    @Redirect(method = "renderFireInFirstPerson", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;color(FFFF)V"))
-    private void renderFireInFirstPerson(float p_color_0_, float p_color_1_, float p_color_2_, float p_color_3_) {
-        final AntiBlind antiBlind = AntiBlind.INSTANCE;
-        if (p_color_3_ != 1F && antiBlind.handleEvents()) {
-            GlStateManager.color(p_color_0_, p_color_1_, p_color_2_, antiBlind.getFireEffect());
-        } else {
-            GlStateManager.color(p_color_0_, p_color_1_, p_color_2_, p_color_3_);
-        }
-    }
-
     @Redirect(method = "updateEquippedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;"))
     private ItemStack hookSilentHotbar(InventoryPlayer instance) {
-        SilentHotbarModule module = SilentHotbarModule.INSTANCE;
-
-        int slot = SilentHotbar.INSTANCE.renderSlot(module.handleEvents() && module.getKeepItemInHandInFirstPerson());
-
+        int slot = SilentHotbar.INSTANCE.renderSlot(true);
         return instance.getStackInSlot(slot);
     }
 }
