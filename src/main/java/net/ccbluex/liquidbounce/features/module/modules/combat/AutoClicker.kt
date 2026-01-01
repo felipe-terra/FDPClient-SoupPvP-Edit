@@ -38,8 +38,9 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
     private val right by boolean("Right", true)
     private val left by boolean("Left", true)
     private val jitter by boolean("Jitter", false)
-    private val block by boolean("Break Blocks", false) { left }
-    private val blockDelay by int("BlockDelay", 50, 0..100) { block }
+    private val hitBlock by boolean("HitBlock", false) { left }
+    private val hitBlockDelay by int("HitBlockDelay", 50, 0..100) { hitBlock }
+    private val breakBlocks by boolean("BreakBlocks", false) { left }
 
     private val requiresNoInput by boolean("RequiresNoInput", false) { left }
     private val maxAngleDifference by float("MaxAngleDifference", 30f, 10f..180f) { left && requiresNoInput }
@@ -80,7 +81,7 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
             val time = System.currentTimeMillis()
             val doubleClick = if (simulateDoubleClicking) RandomUtils.nextInt(-1, 1) else 0
 
-            if (block && thePlayer.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
+            if (breakBlocks && thePlayer.swingProgress > 0 && !mc.gameSettings.keyBindUseItem.isKeyDown) {
                 mc.gameSettings.keyBindUseItem.pressTime = 0
             }
 
@@ -96,14 +97,16 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
 
                 if (left && shouldAutoClick && time - leftLastSwing >= leftDelay) {
                     handleLeftClick(time, doubleClick)
-                } else if (block && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.gameSettings.keyBindAttack.pressTime != 0) {
-                    handleBlock(time)
+                    if (hitBlock && shouldAutoRightClick()) {
+                        handleHitBlock(time)
+                    }
                 }
             } else {
                 if (left && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && time - leftLastSwing >= leftDelay) {
                     handleLeftClick(time, doubleClick)
-                } else if (block && mc.gameSettings.keyBindAttack.isKeyDown && !mc.gameSettings.keyBindUseItem.isKeyDown && shouldAutoClick && shouldAutoRightClick() && mc.gameSettings.keyBindAttack.pressTime != 0) {
-                    handleBlock(time)
+                    if (hitBlock && shouldAutoRightClick()) {
+                        handleHitBlock(time)
+                    }
                 }
             }
         }
@@ -158,8 +161,8 @@ object AutoClicker : Module("AutoClicker", Category.COMBAT, Category.SubCategory
         }
     }
 
-    private fun handleBlock(time: Long) {
-        if (time - lastBlocking >= blockDelay) {
+    private fun handleHitBlock(time: Long) {
+        if (time - lastBlocking >= hitBlockDelay) {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode)
 
             lastBlocking = time
