@@ -191,8 +191,17 @@ object AutoRecraft : Module("AutoRecraft", Category.COMBAT, Category.SubCategory
     
     private suspend fun craftSoups() {
         try {
+            var craftCount = 0
+            val maxAttempts = 100 // Safety limit to prevent infinite loops
+            
             // Craft as many soups as possible
-            while (handleEvents()) {
+            while (handleEvents() && craftCount < maxAttempts) {
+                // Check if inventory has space for soups
+                if (!hasInventorySpace()) {
+                    chat("§e[AutoRecraft] Inventory full! Stopping.")
+                    break
+                }
+                
                 // Re-find ingredients for next soup
                 if (!findIngredients()) {
                     break
@@ -200,6 +209,7 @@ object AutoRecraft : Module("AutoRecraft", Category.COMBAT, Category.SubCategory
                 
                 // Craft one soup
                 craftOneSoup()
+                craftCount++
                 
                 // Wait for all clicks to be processed
                 awaitTicked()
@@ -218,10 +228,25 @@ object AutoRecraft : Module("AutoRecraft", Category.COMBAT, Category.SubCategory
                 closeInventory()
             }
             
-            chat("§a[AutoRecraft] Crafting complete!")
+            if (craftCount > 0) {
+                chat("§a[AutoRecraft] Crafted $craftCount soup(s)!")
+            }
         } finally {
             resetState()
         }
+    }
+    
+    private fun hasInventorySpace(): Boolean {
+        val thePlayer = mc.thePlayer ?: return false
+        
+        // Check if there's at least one empty slot in inventory (slots 9-44)
+        for (slot in 9..44) {
+            val stack = thePlayer.openContainer.getSlot(slot).stack
+            if (stack == null || stack.stackSize == 0) {
+                return true
+            }
+        }
+        return false
     }
     
     private suspend fun craftOneSoup() {
